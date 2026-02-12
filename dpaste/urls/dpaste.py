@@ -22,6 +22,14 @@ urlpatterns = [
         ),
         name="dpaste_about",
     ),
+]
+
+if config.PUBLIC_INDEX:
+    urlpatterns += [
+        re_path(r"^public/$", views.SnippetPublicIndex.as_view(), name="public_index")
+    ]
+
+urlpatterns += [
     re_path(r"^history/$", views.SnippetHistory.as_view(), name="snippet_history"),
     re_path(
         r"^(?P<snippet_id>[a-zA-Z0-9]{%d,})/?$" % L,

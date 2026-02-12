@@ -1,0 +1,40 @@
+{% extends "dpaste/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Public Snippet Index" %}{% endblock %}
+
+{% block options %}
+  <ul id="snippetOptions">
+    <li>{% trans "Public Snippet Index" %}</li>
+    <li class="sep"></li>
+    <li>
+      <label for="wordwrap">
+        <input type="checkbox" id="wordwrap" checked> Wordwrap
+      </label>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block page %}
+    {% for snippet in snippet_list %}
+      <h3 class="history-header">
+        <a href="{{ snippet.get_absolute_url }}">{% blocktrans with snippet.lexer_name as type %}{{ type }} Snippet{% endblocktrans %}</a>
+        <span class="sep"></span>
+        {% blocktrans with snippet.published|timesince as since %}Created {{ since }} ago{% endblocktrans %}
+      </h3>
+      {{ snippet.highlight }}
+    {% empty %}
+      <p class="history-empty">
+        {% trans "No public snippets available." %}</p>
+    {% endfor %}
+    <h3 class="history-pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
+    </h3>
+{% endblock %}

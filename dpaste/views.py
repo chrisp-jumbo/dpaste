@@ -3,6 +3,7 @@ import difflib
 import json
 
 from django.apps import apps
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import (
     Http404,
     HttpResponse,
@@ -228,6 +229,40 @@ class SnippetHistory(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx.update({"snippet_list": self.get_user_snippets()})
+        ctx.update(config.extra_template_context)
+        return ctx
+
+
+class SnippetPublicIndex(TemplateView):
+    """
+    Display all snippets publically with pagination.
+    See PUBLIC_INDEX_PAGE_SIZE in the settings for the number of snippets per page.
+    Only enabled if PUBLIC_INDEX is True.
+    """
+    template_name = "dpaste/public_index.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not config.PUBLIC_INDEX:
+            raise Http404()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Snippet.objects.order_by("-published")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        page_size = getattr(config, "PUBLIC_INDEX_PAGE_SIZE", 10)
+        paginator = Paginator(queryset, page_size)
+        page = self.request.GET.get("page")
+        try:
+            snippets = paginator.page(page)
+        except PageNotAnInteger:
+            snippets = paginator.page(1)
+        except EmptyPage:
+            snippets = paginator.page(paginator.num_pages)
+        ctx["snippet_list"] = snippets.object_list
+        ctx["page_obj"] = snippets
         ctx.update(config.extra_template_context)
         return ctx
 

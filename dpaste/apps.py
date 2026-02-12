@@ -39,6 +39,12 @@ class dpasteAppConfig(AppConfig):
     # HTML content injected at the end of every form
     EXTRA_POST_FORM = ""
 
+    # If True, enables public listing of all pastes
+    PUBLIC_INDEX = False
+
+    # Number of pastes per page in public index
+    PUBLIC_INDEX_PAGE_SIZE = 10
+
     # Integer. Length of the random slug for each new snippet. In the rare
     # case an existing slug is generated again, the length will increase by
     # one more character.
@@ -646,4 +652,5 @@ class dpasteAppConfig(AppConfig):
             "dpaste_extra_post_about": mark_safe(self.EXTRA_POST_ABOUT),
             "dpaste_extra_post_new": mark_safe(self.EXTRA_POST_NEW),
             "dpaste_extra_post_form": mark_safe(self.EXTRA_POST_FORM),
+            "dpaste_public_index": self.PUBLIC_INDEX,
         }
